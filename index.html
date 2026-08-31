@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ChatGPT UI Clone</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #e9e9e9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo",
+                 "Malgun Gothic", sans-serif;
+  }
+
+  /* 모바일 웹뷰처럼 중앙 정렬된 프레임 */
+  .app-frame {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: #ffffff;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== 헤더 ===== */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px 14px 20px;
+    background: #ffffff;
+  }
+
+  .menu-icon {
+    font-size: 22px;
+    line-height: 1;
+    color: #1a1a1a;
+    font-weight: 400;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .gpt-logo {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+  }
+
+  .brand-text {
+    font-size: 21px;
+    font-weight: 600;
+    color: #1a1a1a;
+    letter-spacing: -0.3px;
+  }
+
+  /* ===== 대화 영역 ===== */
+  .chat-body {
+    flex: 1;
+    padding: 10px 18px 24px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  /* 사용자 메시지 */
+  .user-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .user-bubble {
+    background: #e7f2fb;
+    color: #1a1a1a;
+    padding: 12px 18px;
+    border-radius: 20px;
+    font-size: 15.5px;
+    line-height: 1.5;
+    max-width: 75%;
+    word-break: keep-all;
+  }
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #d9d9d9;
+    /* src="USER_IMAGE_URL" -->  사용자 프로필 이미지 경로를 여기에 지정하세요 */
+  }
+
+  /* ChatGPT 답변 */
+  .assistant-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 92%;
+  }
+
+  .assistant-text {
+    font-size: 15.5px;
+    line-height: 1.65;
+    color: #1a1a1a;
+  }
+
+  .assistant-text p {
+    margin: 0 0 14px 0;
+  }
+
+  .assistant-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .assistant-text strong {
+    font-weight: 700;
+  }
+
+  .highlight-gray {
+    color: #9a9a9a;
+    font-weight: 400;
+  }
+
+  /* 액션 아이콘 바 */
+  .action-bar {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 14px;
+    color: #6b6b6b;
+  }
+
+  .action-bar svg {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .action-bar svg:hover {
+    color: #1a1a1a;
+  }
+
+  /* 하단 입력창 아래 여백 확보 */
+  .bottom-spacer {
+    height: 78px;
+  }
+
+  /* ===== 하단 입력창 (fixed) ===== */
+  .input-bar-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: #ffffff;
+    padding: 10px 14px 18px 14px;
+  }
+
+  .input-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e2e2e2;
+    border-radius: 30px;
+    padding: 10px 12px 10px 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .plus-icon {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #1a1a1a;
+    flex-shrink: 0;
+  }
+
+  .input-placeholder {
+    flex: 1;
+    color: #9a9a9a;
+    font-size: 15px;
+  }
+
+  .input-icons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mic-icon {
+    color: #1a1a1a;
+    width: 20px;
+    height: 20px;
+  }
+
+  .voice-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #1a63e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .voice-btn svg {
+    width: 16px;
+    height: 16px;
+    color: #ffffff;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-frame">
+
+  <!-- ===== 헤더 ===== -->
+  <div class="header">
+    <div class="menu-icon">&#9776;</div>
+    <div class="brand">
+      <svg class="gpt-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9A6.07 6.07 0 0 0 4.98 4.18a5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .75 7.09 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.52 2.9A5.98 5.98 0 0 0 13.14 24a6.06 6.06 0 0 0 5.78-4.2 5.98 5.98 0 0 0 4-2.9 6.06 6.06 0 0 0-.64-7.08ZM13.14 22.42a4.48 4.48 0 0 1-2.88-1.04l.14-.08 4.79-2.77a.78.78 0 0 0 .4-.68v-6.75l2.02 1.17a.07.07 0 0 1 .04.06v5.6a4.5 4.5 0 0 1-4.51 4.49ZM3.7 18.4a4.47 4.47 0 0 1-.54-3.01l.14.09 4.79 2.77a.78.78 0 0 0 .78 0l5.85-3.38v2.33a.08.08 0 0 1-.03.07l-4.84 2.79a4.5 4.5 0 0 1-6.15-1.66ZM2.46 7.9a4.47 4.47 0 0 1 2.35-1.96v5.69a.77.77 0 0 0 .39.67l5.84 3.37-2.02 1.17a.08.08 0 0 1-.07 0L3.9 14.05a4.5 4.5 0 0 1-1.44-6.15Zm16.6 3.86-5.85-3.39 2.02-1.16a.08.08 0 0 1 .07 0l4.83 2.79a4.5 4.5 0 0 1-.68 8.11v-5.69a.79.79 0 0 0-.39-.66Zm2.01-3.03-.14-.09-4.79-2.77a.78.78 0 0 0-.78 0l-5.85 3.38V6.92a.07.07 0 0 1 .03-.07l4.84-2.79a4.5 4.5 0 0 1 6.69 4.67ZM8.83 12.87l-2.02-1.17a.07.07 0 0 1-.04-.06v-5.6a4.5 4.5 0 0 1 7.39-3.45l-.14.08-4.79 2.77a.78.78 0 0 0-.4.68v6.75Zm1.1-2.37 2.6-1.5 2.6 1.5v3l-2.6 1.5-2.6-1.5Z" fill="#000000"/>
+      </svg>
+      <span class="brand-text">Chat GPT</span>
+    </div>
+  </div>
+
+  <!-- ===== 대화 영역 ===== -->
+  <div class="chat-body">
+
+    <!-- [1] 사용자 질문 1 -->
+    <div class="user-row">
+      <div class="user-bubble">야 나 그래서 톤이 뭐 같다고?</div>
+      <img class="avatar" src="USER_IMAGE_URL" alt="user avatar" />
+    </div>
+
+    <!-- [2] ChatGPT 대답 1 -->
+    <div class="assistant-block">
+      <div class="assistant-text">
+        <p>딱 말하면 나는 너 <span class="highlight-gray">겨울 쿨톤</span> <strong>쪽 같아.</strong><br>
+        좀 더 좁히면 <strong>겨쿨 브라이트~클리어 쪽</strong>, 적어도 <strong>갈웜보다는 겨쿨 가능성을 훨씬 높게 봐.</strong></p>
+
+        <p>내가 네 사진 2장 보고 잡은 느낌은:</p>
+
+        <p><strong>겨쿨 브라이트/클리어 &gt; 여쿨 &gt; 갈웜</strong></p>
+
+        <p>특히 <strong>새하얀 흰색 + 밝은 쿨블루</strong>가 네 얼굴을 깨끗하게 살리는 쪽이고,<br>
+        베이지·노란기가 강한 색보다 이쪽이 유리해 보여.</p>
+
+        <p>그래서 아까 수영복도 <strong>블라썸 부케 블루를 1위</strong>로 잡은 거고.</p>
+
+        <p>단, <strong>"겨쿨 브라이트 확정"</strong>이라고 할 정도의 진단용 사진은 아니니까, 정확한 세부 타입까지는 현장 드레이핑이 제일 정확함.</p>
+      </div>
+
+      <div class="action-bar">
+        <!-- copy -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+        <!-- thumbs up -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 22V11l5-8 1 1v6h6a2 2 0 0 1 2 2.3l-1.3 7A2 2 0 0 1 18.7 22H7Z"/><path d="M7 11H4v11h3"/></svg>
+        <!-- thumbs down -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2v11l-5 8-1-1v-6H5a2 2 0 0 1-2-2.3l1.3-7A2 2 0 0 1 6.3 2H17Z"/><path d="M17 13h3V2h-3"/></svg>
+        <!-- speaker -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 8a5 5 0 0 1 0 8"/></svg>
+        <!-- share -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8 15.8 6.2M8.2 13.2l7.6 4.6"/></svg>
+        <!-- more -->
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+      </div>
+    </div>
+
+    <!-- [3] 사용자 질문 2 -->
+    <div class="user-row">
+      <div class="user-bubble">그럼 이번 여름엔 어떤 색 옷 사야 돼?</div>
+      <img class="avatar" src="USER_IMAGE_URL" alt="user avatar" />
+    </div>
+
+    <!-- [4] ChatGPT 대답 2 -->
+    <div class="assistant-block">
+      <div class="assistant-text">
+        <p>여름엔 <strong>쿨톤 파스텔 계열</strong>이 제일 무난해.</p>
+
+        <p><strong>화이트, 아이스블루, 라벤더, 소프트 핑크</strong> 쪽으로 가면 얼굴이 환해 보이고,<br>
+        반대로 <strong>카키, 머스타드, 오렌지 계열</strong>은 피하는 게 나아.</p>
+
+        <p>액세서리는 골드보다 <strong>실버 계열</strong>이 더 잘 어울릴 확률이 높아.</p>
+      </div>
+
+      <div class="action-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 22V11l5-8 1 1v6h6a2 2 0 0 1 2 2.3l-1.3 7A2 2 0 0 1 18.7 22H7Z"/><path d="M7 11H4v11h3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2v11l-5 8-1-1v-6H5a2 2 0 0 1-2-2.3l1.3-7A2 2 0 0 1 6.3 2H17Z"/><path d="M17 13h3V2h-3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 8a5 5 0 0 1 0 8"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8 15.8 6.2M8.2 13.2l7.6 4.6"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+      </div>
+    </div>
+
+    <div class="bottom-spacer"></div>
+  </div>
+
+  <!-- ===== 하단 입력창 ===== -->
+  <div class="input-bar-wrapper">
+    <div class="input-bar">
+      <div class="plus-icon">+</div>
+      <div class="input-placeholder">ChatGPT에게 물어보세요</div>
+      <div class="input-icons">
+        <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="9" y="2" width="6" height="11" rx="3"/>
+          <path d="M5 10a7 7 0 0 0 14 0"/>
+          <path d="M12 17v4"/>
+        </svg>
+        <div class="voice-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="4" y1="10" x2="4" y2="14"/>
+            <line x1="8" y1="7" x2="8" y2="17"/>
+            <line x1="12" y1="4" x2="12" y2="20"/>
+            <line x1="16" y1="7" x2="16" y2="17"/>
+            <line x1="20" y1="10" x2="20" y2="14"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
