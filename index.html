@@ -231,6 +231,17 @@
     height: 16px;
     color: #ffffff;
   }
+/* ===== 스크롤 등장 효과 ===== */
+.scroll-message {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.scroll-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 </style>
 </head>
 <body>
@@ -335,18 +346,20 @@
     </div>
 
      <!-- [5] 사용자 질문 3 -->
-    <div class="user-row">
-      <div class="user-bubble">야</div>
-      <img class="avatar" src="123.jpg" alt="user avatar" />
-    </div>
-     <div class="user-row">
-      <div class="user-bubble">엄성현</div>
-      <div class="avatar-space"></div>
-    </div>
-        <div class="user-row">
-      <div class="user-bubble">데이트하자</div>
-      <div class="avatar-space"></div>
-    </div>
+<div class="user-row scroll-message">
+  <div class="user-bubble">야</div>
+  <img class="avatar" src="123.jpg" alt="user avatar" />
+</div>
+
+<div class="user-row scroll-message">
+  <div class="user-bubble">엄성현</div>
+  <div class="avatar-space"></div>
+</div>
+
+<div class="user-row scroll-message">
+  <div class="user-bubble">데이트하자</div>
+  <div class="avatar-space"></div>
+</div>
 
     <div class="bottom-spacer"></div>
   </div>
@@ -376,6 +389,26 @@
   </div>
 
 </div>
+ 
+<script>
+  const messages = document.querySelectorAll('.scroll-message');
 
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('show');
+      } else {
+        entry.target.classList.remove('show');
+      }
+    });
+  }, {
+    threshold: 0.2
+  });
+
+  messages.forEach(message => {
+    observer.observe(message);
+  });
+</script>
+ 
 </body>
 </html>
